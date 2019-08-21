@@ -1,5 +1,10 @@
+# For NN
 import torch
 import torch.optim as optim
+
+# For Graph
+import numpy as np
+import matplotlib.pyplot as plt
 
 #### Custom Network Module
 class ANN(torch.nn.Module):
@@ -35,8 +40,11 @@ else:
 	criterion = torch.nn.MSELoss() # Criterion to Measure the mean squared error 
 
 	epochs = 6000 # Count of Epochs
-
+	
+	score = [] # For printing in Graph
+	
 	for e in range(epochs):
+		running_loss = 0
 		for x in range(0, 4):
 			out = nn(X[x]) # 
 
@@ -47,10 +55,11 @@ else:
 			loss.backward() # Backpropagation
 			
 			optimizer.step() # Update Weight
-			
+			running_loss += loss.item()
 			params = list(nn.parameters())
 		else:
-			print("Epoch: "+str(e)) # Print out actual Epoch
+			score.append(running_loss)
+			print("Epoch: "+str(e)+" running_loss: "+str(running_loss)) # Print out actual Epoch
 ####
 
 # Print Out Result
@@ -62,5 +71,13 @@ for _x, _y in zip(X, y):
     print('Ouput:\t', int(_y))
     print('######')
 
+if load_model == False:
+	# Print Graph
+	plt.plot(score)
+	plt.axis([0, epochs, 0, np.amax(score)])
+	plt.xlabel('Epoch')
+	plt.ylabel('Score')
+	plt.show()
+	
 # Save Model
 torch.save(nn, "./my_model.py")
